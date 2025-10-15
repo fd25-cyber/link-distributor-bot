@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  linkbot:
+    build: .
+    container_name: linkbot
+    restart: always
+    volumes:
+      - ./data.json:/app/data.json
+    environment:
+      - TZ=Europe/Moscow
