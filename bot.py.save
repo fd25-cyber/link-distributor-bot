@@ -119,6 +119,27 @@ async def handle_my_links(callback: CallbackQuery):
     ])
     await callback.message.answer(text, parse_mode="Markdown", reply_markup=start_kb)
 
+@dp.callback_query(lambda c: c.data == "list_used")
+async def handle_list_callback(callback: CallbackQuery):
+    data = load_data()
+    text = "\n".join([
+        f"{i+1}. {u['date']} — {u['user']} — {u['name']}"
+        for i, u in enumerate(data["used"])
+    ]) or "Нет выданных ссылок."
+    await callback.message.answer(text, reply_markup=start_kb)
+
+@dp.callback_query(lambda c: c.data == "status")
+async def handle_status_callback(callback: CallbackQuery):
+    data = load_data()
+    total_available = len(data["available"])
+    total_used = len(data["used"])
+    last_entry = data["used"][-1] if data["used"] else None
+
+    text = f"📊 Статус:\n• Доступно: {total_available}\n• Выдано: {total_used}"
+    if last_entry:
+        text += f"\n🕓 Последняя выдача:\n{last_entry['date']} — {last_entry['user']} — {last_entry['name']}"
+    await callback.message.answer(text, reply_markup=start_kb)
+
 @dp.callback_query(lambda c: c.data == "add_link")
 async def prompt_add_link(callback: CallbackQuery):
     await callback.message.answer("Отправьте ссылки в формате:\n`/add`\n`название * ссылка`\n`название * ссылка`", parse_mode="Markdown", reply_markup=start_kb)
@@ -133,12 +154,12 @@ async def handle_add(msg: Message):
     count = 0
     skipped = []
 
-    existing_names = {u["name"].strip().lower() for u in data["available"] + data["used"]}
+    existing_links = {u["link"] for u in data["available"] + data["used"]}
 
     for line in lines:
         if "*" in line:
             name, link = map(str.strip, line.split("*", 1))
-            if name.strip().lower() in existing_names:
+            if link in existing_links:
                 skipped.append(name)
                 continue
             data["available"].append({"name": name, "link": link})
@@ -153,6 +174,7 @@ async def handle_add(msg: Message):
             await bot.send_message(admin_id, f"⚠️ Дубликаты при добавлении: {', '.join(skipped)}")
 
     await msg.answer(text, reply_markup=start_kb)
+
 @dp.callback_query(lambda c: c.data == "delete_link")
 async def prompt_delete_link(callback: CallbackQuery):
     await callback.message.answer("Отправьте номера и причину:\n`/delete 1,3 причина удаления`", parse_mode="Markdown", reply_markup=start_kb)
@@ -193,59 +215,10 @@ async def handle_delete(msg: Message):
     save_data(data)
     await msg.answer(f"🗑 Удалено: {len(removed)} записей", reply_markup=start_kb)
 
-    for admin_id in ADMIN_IDS:
+       for admin_id in ADMIN_IDS:
         if removed:
             names = [r["name"] for r in removed]
             await bot.send_message(admin_id, f"🗑 Удалено: {len(removed)} ссылок\nПричина: {reason}\nСсылки: {', '.join(names)}")
-
-@dp.callback_query(lambda c: c.data == "find_link")
-async def prompt_find_link(callback: CallbackQuery):
-    await callback.message.answer("Используй команду:\n`/find часть_названия`", parse_mode="Markdown", reply_markup=start_kb)
-
-@dp.message(Command("find"))
-async def handle_find(msg: Message):
-    query = msg.text.split(maxsplit=1)
-    if len(query) != 2:
-        await msg.answer("Используй: /find <часть названия>", reply_markup=start_kb)
-        return
-
-    keyword = query[1].lower()
-    data = load_data()
-    matches = [
-        u for u in data["used"]
-        if keyword in u["name"].lower()
-    ]
-
-    if not matches:
-        await msg.answer("Совпадений не найдено.", reply_markup=start_kb)
-        return
-
-    text = "\n\n".join([
-        f"*Название:* {u['name']}\n*Ссылка:* `{u['link']}`\n📅 {u['date']}"
-        for u in matches
-    ])
-    await msg.answer(text, parse_mode="Markdown", reply_markup=start_kb)
-
-@dp.callback_query(lambda c: c.data == "list_used")
-async def handle_list_callback(callback: CallbackQuery):
-    data = load_data()
-    text = "\n".join([
-        f"{i+1}. {u['date']} — {u['user']} — {u['name']}"
-        for i, u in enumerate(data["used"])
-    ]) or "Нет выданных ссылок."
-    await callback.message.answer(text, reply_markup=start_kb)
-
-@dp.callback_query(lambda c: c.data == "status")
-async def handle_status_callback(callback: CallbackQuery):
-    data = load_data()
-    total_available = len(data["available"])
-    total_used = len(data["used"])
-    last_entry = data["used"][-1] if data["used"] else None
-
-    text = f"📊 Статус:\n• Доступно: {total_available}\n• Выдано: {total_used}"
-    if last_entry:
-        text += f"\n🕓 Последняя выдача:\n{last_entry['date']} — {last_entry['user']} — {last_entry['name']}"
-    await callback.message.answer(text, reply_markup=start_kb)
 
 @dp.message(lambda msg: not msg.text.startswith("/"))
 async def fallback(msg: Message):
@@ -254,3 +227,4 @@ async def fallback(msg: Message):
 if __name__ == "__main__":
     import asyncio
     asyncio.run(dp.start_polling(bot))
+ 
