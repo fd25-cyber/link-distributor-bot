@@ -7,6 +7,10 @@ from config import BOT_TOKEN, ADMIN_IDS, DATA_FILE
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+start_kb = InlineKeyboardMarkup(
+    inline_keyboard=[[InlineKeyboardButton(text="▶️ СТАРТ", callback_data="start")]]
+)
+
 def load_data():
     with open(DATA_FILE, "r") as f:
         return json.load(f)
@@ -17,46 +21,84 @@ def save_data(data):
 
 @dp.message(Command("start"))
 async def handle_start(msg: Message):
-    if msg.from_user.id in ADMIN_IDS:
+    await show_main_menu(msg.from_user.id, msg)
+
+@dp.callback_query(lambda c: c.data == "start")
+async def handle_start_button(callback: CallbackQuery):
+    await show_main_menu(callback.from_user.id, callback.message)
+
+async def show_main_menu(user_id, message):
+    if user_id in ADMIN_IDS:
         kb = InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text="📋 Список", callback_data="list_used")],
                 [InlineKeyboardButton(text="➕ Добавить", callback_data="add_link")],
                 [InlineKeyboardButton(text="❌ Удалить", callback_data="delete_link")],
-                [InlineKeyboardButton(text="📊 Статус", callback_data="status")]
+                [InlineKeyboardButton(text="🔍 Поиск", callback_data="find_link")],
+                [InlineKeyboardButton(text="📊 Статус", callback_data="status")],
+                [InlineKeyboardButton(text="▶️ СТАРТ", callback_data="start")]
             ]
         )
-        await msg.answer("Вы администратор. Выберите действие:", reply_markup=kb)
+        await message.answer("Вы администратор. Выберите действие:", reply_markup=kb)
     else:
         kb = InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="Получить", callback_data="get_link")]]
+            inline_keyboard=[
+                [InlineKeyboardButton(text="Получить", callback_data="get_link")],
+                [InlineKeyboardButton(text="Мои ссылки", callback_data="my_links")],
+                [InlineKeyboardButton(text="▶️ СТАРТ", callback_data="start")]
+            ]
         )
-        await msg.answer("Нажмите кнопку, чтобы получить ссылку:", reply_markup=kb)
+        await message.answer("Выберите действие:", reply_markup=kb)
 
 @dp.callback_query(lambda c: c.data == "get_link")
 async def handle_get_callback(callback: CallbackQuery):
     data = load_data()
+    user_id = str(callback.from_user.id)
+    user_links = [u for u in data["used"] if str(u.get("id")) == user_id]
+
+    if len(user_links) >= 5:
+        await callback.message.answer("🚫 Лимит: не более 5 ссылок на пользователя.", reply_markup=start_kb)
+        return
+
     if not data["available"]:
-        await callback.message.answer("Нет доступных ссылок.")
+        await callback.message.answer("Нет доступных ссылок.", reply_markup=start_kb)
         return
 
     entry = data["available"].pop(0)
     name = entry["name"]
     link = entry["link"]
-    username = callback.from_user.username or str(callback.from_user.id)
+    username = callback.from_user.username or user_id
 
     data["used"].append({
         "name": name,
         "link": link,
         "user": username,
+        "id": user_id,
         "date": callback.message.date.isoformat()
     })
     save_data(data)
 
-    await callback.message.answer(f"🔗 *{name}*\n`{link}`", parse_mode="Markdown")
+    text = f"*Название:* {name}\n*Ссылка:* `{link}`"
+    await callback.message.answer(text, parse_mode="Markdown", reply_markup=start_kb)
 
     for admin_id in ADMIN_IDS:
         await bot.send_message(admin_id, f"{username} получил ссылку: {name}")
+
+@dp.callback_query(lambda c: c.data == "my_links")
+async def handle_my_links(callback: CallbackQuery):
+    data = load_data()
+    user_id = str(callback.from_user.id)
+    user_links = [u for u in data["used"] if str(u.get("id")) == user_id]
+
+    if not user_links:
+        await callback.message.answer("У вас пока нет выданных ссылок.", reply_markup=start_kb)
+        return
+
+    text = "\n\n".join([
+        f"*Название:* {u['name']}\n*Ссылка:* `{u['link']}`"
+        for u in user_links
+    ])
+    await callback.message.answer(text, parse_mode="Markdown", reply_markup=start_kb)
 
 @dp.callback_query(lambda c: c.data == "list_used")
 async def handle_list_callback(callback: CallbackQuery):
@@ -65,7 +107,7 @@ async def handle_list_callback(callback: CallbackQuery):
         f"{i+1}. {u['date']} — {u['user']} — {u['name']}"
         for i, u in enumerate(data["used"])
     ]) or "Нет выданных ссылок."
-    await callback.message.answer(text)
+    await callback.message.answer(text, reply_markup=start_kb)
 
 @dp.callback_query(lambda c: c.data == "status")
 async def handle_status_callback(callback: CallbackQuery):
@@ -77,56 +119,91 @@ async def handle_status_callback(callback: CallbackQuery):
     text = f"📊 Статус:\n• Доступно: {total_available}\n• Выдано: {total_used}"
     if last_entry:
         text += f"\n🕓 Последняя выдача:\n{last_entry['date']} — {last_entry['user']} — {last_entry['name']}"
-    await callback.message.answer(text)
+    await callback.message.answer(text, reply_markup=start_kb)
 
 @dp.callback_query(lambda c: c.data == "add_link")
 async def prompt_add_link(callback: CallbackQuery):
-    await callback.message.answer("Отправьте ссылку для добавления в формате:\n`/add <название> <ссылка>`", parse_mode="Markdown")
+    await callback.message.answer("Отправьте ссылки в формате:\n`/add`\n`название * ссылка`\n`название * ссылка`", parse_mode="Markdown", reply_markup=start_kb)
 
 @dp.message(Command("add"))
 async def handle_add(msg: Message):
     if msg.from_user.id not in ADMIN_IDS:
         return
-    parts = msg.text.split(maxsplit=2)
-    if len(parts) < 3:
-        await msg.answer("Формат: /add <название> <ссылка>")
-        return
-    name, link = parts[1], parts[2]
+
+    lines = msg.text.split("\n")[1:]  # Пропустить первую строку с /add
     data = load_data()
-    data["available"].append({"name": name, "link": link})
+    count = 0
+
+    for line in lines:
+        if "*" in line:
+            name, link = map(str.strip, line.split("*", 1))
+            data["available"].append({"name": name, "link": link})
+            count += 1
+
     save_data(data)
-    await msg.answer(f"Добавлено: {name}")
+    await msg.answer(f"✅ Добавлено: {count} ссылок", reply_markup=start_kb)
 
 @dp.callback_query(lambda c: c.data == "delete_link")
 async def prompt_delete_link(callback: CallbackQuery):
-    await callback.message.answer("Отправьте номер для удаления:\n`/delete <номер>`", parse_mode="Markdown")
+    await callback.message.answer("Отправьте номера для удаления:\n`/delete 1,3,5`", parse_mode="Markdown", reply_markup=start_kb)
 
 @dp.message(Command("delete"))
 async def handle_delete(msg: Message):
     if msg.from_user.id not in ADMIN_IDS:
         return
-    parts = msg.text.split()
-    if len(parts) != 2 or not parts[1].isdigit():
-        await msg.answer("Используй: /delete <номер>")
+
+    parts = msg.text.split(maxsplit=1)
+    if len(parts) != 2:
+        await msg.answer("Используй: /delete <номера через запятую>", reply_markup=start_kb)
         return
-    index = int(parts[1]) - 1
+
+    try:
+        indices = sorted(set(int(i.strip()) - 1 for i in parts[1].split(",")), reverse=True)
+    except ValueError:
+        await msg.answer("Номера должны быть целыми числами", reply_markup=start_kb)
+        return
+
     data = load_data()
-    if 0 <= index < len(data["used"]):
-        entry = data["used"].pop(index)
-        save_data(data)
-        await msg.answer(f"Удалено: {entry['name']}")
-    else:
-        await msg.answer("Неверный номер.")
+    removed = []
+
+    for i in indices:
+        if 0 <= i < len(data["used"]):
+            removed.append(data["used"].pop(i))
+
+    save_data(data)
+    await msg.answer(f"🗑 Удалено: {len(removed)} записей", reply_markup=start_kb)
+
+@dp.callback_query(lambda c: c.data == "find_link")
+async def prompt_find_link(callback: CallbackQuery):
+    await callback.message.answer("Используй команду:\n`/find часть_названия`", parse_mode="Markdown", reply_markup=start_kb)
+
+@dp.message(Command("find"))
+async def handle_find(msg: Message):
+    query = msg.text.split(maxsplit=1)
+    if len(query) != 2:
+        await msg.answer("Используй: /find <часть названия>", reply_markup=start_kb)
+        return
+
+    keyword = query[1].lower()
+    data = load_data()
+    matches = [
+        u for u in data["used"]
+        if keyword in u["name"].lower()
+    ]
+
+    if not matches:
+        await msg.answer("Совпадений не найдено.", reply_markup=start_kb)
+        return
+
+    text = "\n\n".join([
+        f"*Название:* {u['name']}\n*Ссылка:* `{u['link']}`\n📅 {u['date']}"
+        for u in matches
+    ])
+    await msg.answer(text, parse_mode="Markdown", reply_markup=start_kb)
 
 @dp.message(lambda msg: not msg.text.startswith("/"))
 async def fallback(msg: Message):
-    if msg.from_user.id in ADMIN_IDS:
-        await handle_start(msg)
-    else:
-        kb = InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="Получить", callback_data="get_link")]]
-        )
-        await msg.answer("Нажмите кнопку, чтобы получить ссылку:", reply_markup=kb)
+    await msg.answer("Нажмите СТАРТ для начала работы", reply_markup=start_kb)
 
 if __name__ == "__main__":
     import asyncio
