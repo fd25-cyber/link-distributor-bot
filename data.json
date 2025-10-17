@@ -1,41 +1,4 @@
 {
-  "available": [
-    {
-      "name": "005 \u0421\u043e\u0441\u0440\u0435\u0434\u043e\u0442\u043e\u0447\u0435\u043d\u043d\u044b\u0439 \u041a\u043b\u0435\u0440\u043a",
-      "link": "vless://39423785-4707-4f9c-bdaf-667b3c89ee84@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.tradingview.com&sid=8f3bad26a7bb#005%20%D0%A1%D0%BE%D1%81%D1%80%D0%B5%D0%B4%D0%BE%D1%82%D0%BE%D1%87%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%9A%D0%BB%D0%B5%D1%80%D0%BA"
-    },
-    {
-      "name": "178 \u0423\u0432\u0430\u0436\u0430\u0435\u043c\u044b\u0439 \u0411\u0440\u0430\u043d\u0434\u0442",
-      "link": "vless://a675fa7d-f9e5-4e5f-91b8-7205a036383b@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.hollywoodreporter.com&sid=249a28b323ad#178%20%D0%A3%D0%B2%D0%B0%D0%B6%D0%B0%D0%B5%D0%BC%D1%8B%D0%B9%20%D0%91%D1%80%D0%B0%D0%BD%D0%B4%D1%82"
-    },
-    {
-      "name": "138 \u041b\u044e\u0431\u043e\u0437\u043d\u0430\u0442\u0435\u043b\u044c\u043d\u044b\u0439 \u0421\u0430\u0442\u044c\u044f\u0440\u0442\u0445\u0438",
-      "link": "vless://1d68ba78-7a95-4302-ba9c-c23a6e6ec50d@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.mozilla.org&sid=5109f823a8d9#138%20%D0%9B%D1%8E%D0%B1%D0%BE%D0%B7%D0%BD%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D0%A1%D0%B0%D1%82%D1%8C%D1%8F%D1%80%D1%82%D1%85%D0%B8"
-    },
-    {
-      "name": "192 \u041c\u043e\u043b\u0447\u0430\u043b\u0438\u0432\u044b\u0439 \u0425\u0430\u043b\u043b",
-      "link": "vless://31e8bf0a-29be-4def-acb6-a43d682eead7@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.mozilla.org&sid=84e1bf2883dc#192%20%D0%9C%D0%BE%D0%BB%D1%87%D0%B0%D0%BB%D0%B8%D0%B2%D1%8B%D0%B9%20%D0%A5%D0%B0%D0%BB%D0%BB"
-    },
-    {
-      "name": "045 \u041d\u0435\u043e\u0436\u0438\u0434\u0430\u043d\u043d\u044b\u0439 \u041b\u0443\u0442\u0443\u043b\u0438",
-      "link": "vless://4b39bff4-bb89-4564-aced-cd4fc90d4996@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.tradingview.com&sid=fd06cf662fd4#045%20%D0%9D%D0%B5%D0%BE%D0%B6%D0%B8%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%9B%D1%83%D1%82%D1%83%D0%BB%D0%B8"
-    },
-    {
-      "name": "059 \u041c\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0439 \u0425\u0430\u043c\u043c\u0430\u0440\u0448\u0435\u043b\u044c\u0434",
-      "link": "vless://0c5b4f47-aa04-4ee6-85b4-15a6c9c5e041@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.tradingview.com&sid=4261fc953ccd#059%20%D0%9C%D0%BD%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D0%A5%D0%B0%D0%BC%D0%BC%D0%B0%D1%80%D1%88%D0%B5%D0%BB%D1%8C%D0%B4"
-    },
-    {
-      "name": "010 \u0411\u0435\u0441\u043a\u043e\u043d\u0435\u0447\u043d\u044b\u0439 \u041c\u0443\u0440\u0430\u0442\u043e\u0432",
-      "link": "vless://2523f197-1276-421f-bcb2-2e8df2b22640@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.hollywoodreporter.com&sid=1b781a5e41f0#010%20%D0%91%D0%B5%D1%81%D0%BA%D0%BE%D0%BD%D0%B5%D1%87%D0%BD%D1%8B%D0%B9%20%D0%9C%D1%83%D1%80%D0%B0%D1%82%D0%BE%D0%B2"
-    },
-    {
-      "name": "185 \u041d\u0435\u0437\u0430\u043c\u0435\u043d\u0438\u043c\u044b\u0439 \u0411\u0430\u0442\u043b\u0435\u0440",
-      "link": "vless://ab0b0f68-66e2-48db-9ea1-822d1647aa42@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.tradingview.com&sid=519615196c53#185%20%D0%9D%D0%B5%D0%B7%D0%B0%D0%BC%D0%B5%D0%BD%D0%B8%D0%BC%D1%8B%D0%B9%20%D0%91%D0%B0%D1%82%D0%BB%D0%B5%D1%80"
-    },
-    {
-      "name": "154 \u041f\u0440\u0438\u0437\u043d\u0430\u043d\u043d\u044b\u0439 \u0424\u0440\u0438\u0434",
-      "link": "vless://10c1a036-4216-41c0-ae9a-f4ae7c3de0b6@sites.oldenester.icu:443?security=reality&encryption=none&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=jRppF5Rm7YiLCePE6MwQeoweGNqGj85v9Wk9sEu6Yjk&sni=www.foxsports.com&sid=a5e30805fc82#154%20%D0%9F%D1%80%D0%B8%D0%B7%D0%BD%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%A4%D1%80%D0%B8%D0%B4"
-    }
-  ],
+  "available": [],
   "used": []
 }

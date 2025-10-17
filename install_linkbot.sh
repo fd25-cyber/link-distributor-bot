@@ -1,30 +1,48 @@
 #!/bin/bash
-
 set -e
 
-echo "🔧 Установка Telegram-бота для раздачи ссылок"
+echo "🔧 Установка Telegram-бота с безопасным хранением токена"
 
-read -p "Введите Telegram Bot Token: " BOT_TOKEN
-read -p "Введите Telegram Admin ID: " ADMIN_ID
+# Проверка существующего контейнера
+if docker ps -a --format '{{.Names}}' | grep -q "^linkbot$"; then
+  echo "🛑 Контейнер 'linkbot' уже существует. Перезапускаем..."
+  docker stop linkbot || true
+  docker rm -f linkbot || true
+fi
 
-git clone https://github.com/fd25-cyber/link-distributor-bot.git /opt/linkbot
-cd /opt/linkbot
+# Создание .env
+if [ -f .env ]; then
+  echo "⚠️ Файл .env уже существует. Используем текущие значения."
+else
+  read -p "Введите Telegram Bot Token: " BOT_TOKEN
+  read -p "Введите Telegram Admin ID (через запятую, если несколько): " ADMIN_IDS
 
-cat > config.py <<EOF
-BOT_TOKEN = "$BOT_TOKEN"
-ADMIN_IDS = [$ADMIN_ID]
-DATA_FILE = "data.json"
+  cat > .env <<EOF
+BOT_TOKEN=$BOT_TOKEN
+ADMIN_IDS=$ADMIN_IDS
 EOF
+  echo "✅ Файл .env создан."
+fi
 
+# Проверка requirements.txt
+if ! grep -q "python-dotenv" requirements.txt; then
+  echo "📦 Добавляем python-dotenv в requirements.txt"
+  echo "python-dotenv" >> requirements.txt
+fi
+
+# Сборка Docker-образа
 docker build -t linkbot .
 
+# Запуск контейнера
 docker run -d \
   --name linkbot \
-  -v /opt/linkbot:/app \
+  --env-file .env \
+  -v $(pwd):/app \
   -w /app \
   linkbot \
   python bot.py
 
+# Настройка автозапуска через systemd
 cat > /etc/systemd/system/linkbot.service <<EOF
 [Unit]
 Description=Telegram Link Distributor Bot
@@ -42,6 +60,6 @@ EOF
 
 systemctl daemon-reexec
 systemctl enable linkbot
-systemctl start linkbot
+systemctl restart linkbot
 
 echo -e "\n✅ Бот установлен и запущен. Проверь его в Telegram."

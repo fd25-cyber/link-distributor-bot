@@ -1,3 +1,8 @@
-BOT_TOKEN = ""
-ADMIN_IDS = []  # Telegram ID админа
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 DATA_FILE = "data.json"
