@@ -29,7 +29,7 @@ chmod +x install_linkbot.sh
 
 ```env
 BOT_TOKEN=123456:ABC-DEF
-ADMIN_IDS=7054164521
+ADMIN_IDS=70512345678
 ```
 
 > Поддерживается несколько ID через запятую:  
